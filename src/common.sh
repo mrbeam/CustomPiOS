@@ -46,7 +46,7 @@ function echo_green() {
 function gitclone(){
   # call like this: gitclone OCTOPI_OCTOPRINT_REPO someDirectory -- this will do:
   #
-  #   sudo -u "${BASE_USER}" git clone -b $OCTOPI_OCTOPRINT_REPO_BRANCH --depth $OCTOPI_OCTOPRINT_REPO_DEPTH $OCTOPI_OCTOPRINT_REPO_BUILD someDirectory
+  #   sudo -u "${BASE_USER}" git clone -b $OCTOPI_OCTOPRINT_REPO_BRANCH --depth $OCTOPI_OCTOPRINT_REPO_DEPTH -i $OCTOPI_OCTOPRINT_REPO_SSH_PATH someDirectory
   # 
   # and if $OCTOPI_OCTOPRINT_REPO_BUILD != $OCTOPI_OCTOPRINT_REPO_SHIP also:
   #
@@ -62,6 +62,7 @@ function gitclone(){
   repo_branch_var=$1_BRANCH
   repo_depth_var=$1_DEPTH
   repo_recursive_var=$1_RECURSIVE
+  repo_ssh_key=$1_SSH_PATH
 
   repo_depth=${!repo_depth_var}
   if [ -n "$repo_depth" ]
@@ -77,6 +78,7 @@ function gitclone(){
   build_repo=${!repo_build_var}
   ship_repo=${!repo_ship_var}
   branch=${!repo_branch_var}
+  ssh_key=${!repo_ssk_key}
 
   if [ ! -n "$build_repo" ]
   then
@@ -99,6 +101,11 @@ function gitclone(){
   if [ -n "$depth" ]
   then
     clone_params="$clone_params --depth $depth"
+  fi
+
+  if [ -n "$ssh_key" ]
+  then
+    clone_params="$clone_params -i $ssh_key"
   fi
   
   repo_dir=$2
