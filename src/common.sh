@@ -46,8 +46,11 @@ function echo_green() {
 function gitclone(){
   # call like this: gitclone OCTOPI_OCTOPRINT_REPO someDirectory -- this will do:
   #
-  #   sudo -u "${BASE_USER}" git clone -b $OCTOPI_OCTOPRINT_REPO_BRANCH --depth $OCTOPI_OCTOPRINT_REPO_DEPTH -i $OCTOPI_OCTOPRINT_REPO_SSH_KEY someDirectory
-  # 
+  #   sudo -u "${BASE_USER}" git clone -b $OCTOPI_OCTOPRINT_REPO_BRANCH --depth $OCTOPI_OCTOPRINT_REPO_DEPTH someDirectory
+  #
+  # If given, the $OCTOPI_OCTOPRINT_REPO_SSH_KEY allows to use an ssh key file to clone from a private repository.
+  # It is equivalent to add --config core.sshCommand="ssh -i $OCTOPI_OCTOPRINT_REPO_SSH_KEY" to the git clone arguments
+  #
   # and if $OCTOPI_OCTOPRINT_REPO_BUILD != $OCTOPI_OCTOPRINT_REPO_SHIP also:
   #
   #   pushd someDirectory
@@ -103,21 +106,21 @@ function gitclone(){
     clone_params="$clone_params --depth $depth"
   fi
 
-  if [ -n "$ssh_key" ]
-  then
-    clone_params="$clone_params -i $ssh_key"
-  fi
-  
+  # if [ -n "$ssh_key" ]
+  # then
+  #   clone_params="$clone_params --config core.sshCommand=\"ssh -i $ssh_key\""
+  # fi
+
   repo_dir=$2
   if [ ! -n "$repo_dir" ]
   then
-    repo_dir=$(echo ${repo_dir} | sed 's%^.*/\([^/]*\)\(\.git\)?$%\1%g')
+    repo_dir="$(echo ${repo_dir} | sed 's%^.*/\([^/]*\)\(\.git\)?$%\1%g')"
   fi
   
-  if [ "$repo_dir" == "" ]; then
-      sudo -u "${BASE_USER}" git clone $clone_params "$build_repo"
+  if [ -n "$ssh_key" ]; then
+      sudo -u "${BASE_USER}" git clone $clone_params --config core.sshCommand="ssh -i $ssh_key" "$build_repo" $repo_dir
   else
-      sudo -u "${BASE_USER}" git clone $clone_params "$build_repo" "$repo_dir"
+      sudo -u "${BASE_USER}" git clone $clone_params "$build_repo" $repo_dir
   fi
 
   if [ "$build_repo" != "$ship_repo" ]
