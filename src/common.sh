@@ -201,6 +201,7 @@ function unmount_image() {
     force=$2
   fi
 
+  sync
   if [ -n "$force" ]
   then
     for pid in $(sudo lsof -t $mount_path)
